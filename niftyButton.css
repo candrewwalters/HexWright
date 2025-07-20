@@ -1,0 +1,19 @@
+.niftyButton {
+
+  border: solid thin;
+  margin: 0.5vh;
+  border-radius: 7px;
+  padding: 0.3vh 0.7vh;
+  text-align: center;
+  display: inline-block;
+
+  cursor: pointer;
+
+  box-shadow: 0.2vh 0.4vh 1vh darkgrey;
+
+}
+
+.niftyButton:active {
+    transform: translate( 2px, 2px);
+    box-shadow: 0.1vh 0.2vh 0.5vh darkgrey;
+}

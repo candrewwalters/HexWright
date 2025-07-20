@@ -1,0 +1,352 @@
+.mapInfoDialogOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.mapInfoDialog {
+    background:
+        radial-gradient(circle at 20% 20%, rgba(139, 69, 19, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(160, 82, 45, 0.1) 0%, transparent 50%),
+        linear-gradient(45deg, #F5DEB3 0%, #DEB887 25%, #D2B48C 50%, #DEB887 75%, #F5DEB3 100%);
+    border: 3px solid #8B4513;
+    border-radius: 12px;
+    padding: 30px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.mapInfoDialog::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(139, 69, 19, 0.05) 0%, transparent 30%),
+        radial-gradient(circle at 90% 90%, rgba(139, 69, 19, 0.05) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(160, 82, 45, 0.03) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+.mapInfoDialogContent {
+    position: relative;
+    z-index: 1;
+}
+
+.mapInfoDialogTitle {
+    margin: 0 0 25px 0;
+    color: #654321;
+    text-align: center;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid #8B4513;
+    padding-bottom: 10px;
+    font-family: 'Almendra';
+}
+
+.mapInfoFormGroup {
+    margin-bottom: 20px;
+}
+
+.mapInfoFormRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+
+.mapInfoFormRow .mapInfoFormGroup {
+    flex: 1;
+}
+
+.mapInfoLabel {
+    display: block;
+    margin-bottom: 5px;
+    color: #654321;
+    font-weight: bold;
+    font-size: 14px;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
+    font-family: 'Almendra';
+}
+
+.mapInfoInput, .mapInfoTextarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #8B4513;
+    border-radius: 6px;
+    background: rgba(255, 248, 220, 0.9);
+    color: #654321;
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.mapInfoInput:focus, .mapInfoTextarea:focus {
+    outline: none;
+    border-color: #A0522D;
+    background: rgba(255, 248, 220, 1);
+    box-shadow: 0 0 8px rgba(160, 82, 45, 0.3);
+}
+
+.mapInfoTextarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.mapInfoTextareaDescription {
+    min-height: 120px;
+}
+
+.mapInfoButtonGroup {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.mapInfoButton {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid #8B4513;
+    border-radius: 6px;
+    font-family: 'Almendra';
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.mapInfoButton.selected {
+    background-color: #8B4513;
+    color: white;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+
+.mapInfoBtnCancel {
+    background: linear-gradient(135deg, #CD853F, #D2B48C);
+    color: #654321;
+}
+
+.mapInfoBtnCancel:hover {
+    background: linear-gradient(135deg, #D2B48C, #DEB887);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mapInfoBtnSave {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: #F5DEB3;
+}
+
+.mapInfoBtnSave:hover {
+    background: linear-gradient(135deg, #A0522D, #8B4513);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mapInfoButton:active {
+    transform: translateY(0);
+}
+
+.privacyDialog {
+    width: 700px;
+}
+
+.privacyContent {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 30px 30px;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.privacyText {
+    color: #654321;
+    font-family: Georgia, serif;
+    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.privacyText p {
+    margin-bottom: 16px;
+}
+
+.privacyButtonExplanation {
+    color: #654321;
+    font-family: Georgia, serif;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+/* Export Dialog Specific Styles */
+.exportDialog {
+    width: 500px;
+}
+
+.exportExplanation {
+    color: #654321;
+    font-family: Georgia, serif;
+    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.exportExplanation p {
+    margin-bottom: 16px;
+}
+
+.exportRadioGroup {
+    margin-bottom: 20px;
+}
+
+.exportRadioGroup h4 {
+    margin: 0 0 10px 0;
+    color: #654321;
+    font-family: 'Almendra';
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.exportRadioOption {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.exportRadioOption input[type="radio"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    accent-color: #8B4513;
+}
+
+.exportRadioOption label {
+    color: #654321;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0;
+    flex: 1;
+}
+
+.exportCustomDpiRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.exportCustomDpiInput {
+    width: 80px;
+    padding: 6px 8px;
+    border: 2px solid #8B4513;
+    border-radius: 4px;
+    background: rgba(255, 248, 220, 0.9);
+    color: #654321;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.exportCustomDpiInput:focus {
+    outline: none;
+    border-color: #A0522D;
+    background: rgba(255, 248, 220, 1);
+    box-shadow: 0 0 8px rgba(160, 82, 45, 0.3);
+}
+
+.exportCustomDpiInput:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.exportQualityGroup {
+    margin-bottom: 20px;
+}
+
+.exportQualitySlider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #DEB887;
+    outline: none;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.exportQualitySlider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8B4513;
+    cursor: pointer;
+    border: 2px solid #654321;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.exportQualitySlider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8B4513;
+    cursor: pointer;
+    border: 2px solid #654321;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.exportQualitySlider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.exportQualityValue {
+    text-align: center;
+    color: #654321;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.exportFileSizeInfo {
+    background: rgba(139, 69, 19, 0.1);
+    border: 1px solid #8B4513;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #654321;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
