@@ -1922,14 +1922,14 @@ function drawAngleLines( centerX, centerY ) {
     }
 
     function handleFileChange(event) {
-        console.log('handleFileChange()');
+//        console.log('handleFileChange()');
         const file = event.target.files[0]; // Get the selected file
         if (!file) {
-            console.log("no file was selected");
+//            console.log("no file was selected");
             return; // If no file is selected, do nothing
         }
 
-        console.log( file );
+//        console.log( file );
 
         const reader = new FileReader(); // Create a FileReader object
         reader.onload = handleFileLoad;
@@ -1940,13 +1940,13 @@ function drawAngleLines( centerX, centerY ) {
 
     function handleFileLoad(e) {
 
-      console.log( 'handleFileLoad()' );
+//      console.log( 'handleFileLoad()' );
 
         const content = e.target.result; // Get the file content
 
         document.getElementById('textDisplayArea').value = content; // Load content into the textarea
 
-        console.log( content.split('\n')[0] );
+//        console.log( content.split('\n')[0] );
 
         convertTextToObject();
 
@@ -2630,6 +2630,10 @@ function drawAngleLines( centerX, centerY ) {
 
     function convertShamatToObject() {
 
+//      document.getElementById('shamatWarningDiv').style.display='block';
+
+      showShamatWarning();
+
       shamatObject = JSON.parse( document.getElementById("textDisplayArea").value );
 
       map = {
@@ -2702,8 +2706,37 @@ function drawAngleLines( centerX, centerY ) {
 
       megaHexOrigin = null;
 
+      convertObjectToText();
+
     }
 
+
+    let shamatKeyHandler = null;
+
+    function showShamatWarning() {
+        const div = document.getElementById('shamatWarningDiv');
+        div.style.display = 'block';
+
+        // Add key listener only when dialog is shown
+        shamatKeyHandler = function(event) {
+            if (event.key === 'Escape' || event.key === ' ' || event.key === 'Enter') {
+                hideShamatWarning();
+            }
+        };
+
+        document.addEventListener('keydown', shamatKeyHandler);
+    }
+
+    function hideShamatWarning() {
+        const div = document.getElementById('shamatWarningDiv');
+        div.style.display = 'none';
+
+        // Remove the key listener when dialog is hidden
+        if (shamatKeyHandler) {
+            document.removeEventListener('keydown', shamatKeyHandler);
+            shamatKeyHandler = null;
+        }
+    }
 
     function simpleColorCategory(hexColor) {
         const hex = hexColor.replace('#', '');
@@ -8981,6 +9014,24 @@ function updateFileSizeEstimate() {
 
     <img id='meleeLogo' src="art/MeleeLogo.png" style="display: none;">
     <img id='wizardLogo' src="art/WizardLogo.png" style="display: none;">
+
+
+    <div id='shamatWarningDiv' style='position: relative; display: none; width: 50vw; margin: 0 auto; z-index: 14; top: 10vh;'>
+        <img src='art/scroll3.jpg' style='width: 100%; height: auto;'>
+        <img src='art/swordy.jpg' style='position: absolute; top: 10%; left: 50%; transform: translateX(-50%); height: 8vh; width: auto;'>
+        <div style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 20px; border-radius: 10px; font-size: 1.2rem; width: 80%; max-width: calc(50vw - 40px);'>
+        <p>
+            It looks like you are trying to import a map from Shamat! There are a couple things you should know.
+        </p>
+        <p>
+            Shamat implements a lot of subtlety about what can be in a hex, whereas HexWright only recognizes full hexes of wall, water, etc. So Shamat hexes containing any black will be walls here. Blue hexes will be water. Red hexes will be lava. Pits and trapdoors carry over, and pentagrams become pentacles. Nothing else is converted.
+        </p>
+        </div>
+        <button onclick="hideShamatWarning();" style='position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); background: #8B4513; color: #F4E4BC; border: 2px solid #654321; padding: 12px 24px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-family: serif; box-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>
+            Proceed with Import
+        </button>
+    </div>
+
 
     <div id='testText1' style='display: none'>
 
