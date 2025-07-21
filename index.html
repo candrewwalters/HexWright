@@ -2037,6 +2037,7 @@ function drawAngleLines( centerX, centerY ) {
         let trapdoorList = '';
         let tableList = '';
         let altarList = '';
+        let pentacleList = '';
         let barricadeList = '';
         let lavaList = '';
         let stoneList = '';
@@ -2086,8 +2087,12 @@ function drawAngleLines( centerX, centerY ) {
               tableList += x+','+y+' ';
             }
 
-            if ( map.grid[x][y].some(item => ['altar', 'altas'].includes(item)) ) {
+            if ( map.grid[x][y].some(item => ['altar', 'altars'].includes(item)) ) {
               altarList += x+','+y+' ';
+            }
+
+            if ( map.grid[x][y].some(item => ['pentacle', 'pentacles'].includes(item)) ) {
+              pentacleList += x+','+y+' ';
             }
 
             if ( map.grid[x][y].some(item => ['barricade', 'barricades'].includes(item)) ) {
@@ -2158,6 +2163,7 @@ function drawAngleLines( centerX, centerY ) {
           { label: 'Barricade', list: barricadeList },
           { label: 'Table', list: tableList },
           { label: 'Altar', list: altarList },
+          { label: 'Pentacle', list: pentacleList },
           { label: 'Lava', list: lavaList },
           { label: 'Stone', list: stoneList },
           { label: 'Tar', list: tarList },
@@ -2270,6 +2276,17 @@ function drawAngleLines( centerX, centerY ) {
     function convertTextToObject() {
 
       const lines = document.getElementById("textDisplayArea").value.split('\n').map(line => line.trim());
+
+      while (lines.length > 0 && lines[0].trim() === '') {
+        lines.shift();
+      }
+
+      if ( lines[0].startsWith('{"shamat') ) {
+
+        convertShamatToObject();
+        return;
+
+      }
 
       map = {
         name: 'missing data map',
@@ -2443,6 +2460,7 @@ function drawAngleLines( centerX, centerY ) {
         { pattern: /^table\s*[:= -]?/i, gridValue: 'table' },
         { pattern: /^barricade\s*[:= -]?/i, gridValue: 'barricade' },
         { pattern: /^altar\s*[:= -]?/i, gridValue: 'altar' },
+        { pattern: /^pentacle\s*[:= -]?/i, gridValue: 'pentacle' },
         { pattern: /^(?:shadows?|darkness)\s*[:= -]?/i, gridValue: 'shadow' },
         { pattern: /^(?:fires?|flames?)\s*[:= -]?/i, gridValue: 'fire' },
         { pattern: /^(?:paths?|roads?|trails?|walkways?)\s*[:= -]?/i, gridValue: 'path' },
@@ -2608,6 +2626,106 @@ function drawAngleLines( centerX, centerY ) {
 //      console.table(map.palette);
 
     }
+
+
+    function convertShamatToObject() {
+
+      shamatObject = JSON.parse( document.getElementById("textDisplayArea").value );
+
+      map = {
+        name: shamatObject.name,
+        description: 'Imported from Shamat II\ncreated by ' + shamatObject.author,
+        width: shamatObject.cols,
+        height: shamatObject.rows,
+        grid: Array.from({ length: shamatObject.cols }, () =>
+          Array.from({ length: shamatObject.rows }, () => [])
+        ),
+        palette: {
+          name: 'cavern'
+        },
+        graphic: undefined,
+        lineStyle: 'normal',
+        showDots: 'no',
+        showHexNumbers: 'no',
+        stoneBridges: [],
+        woodBridges: [],
+        texture: 'no',
+        megaHexCenters: []
+      };
+
+      for ( let i = 0; i < shamatObject.hexes.length; i++ ) {
+
+        const x = Math.floor( i / map.height );
+        const y = i % map.width;
+
+        const shamatColor = shamatObject.hexes[i].base[0].color;
+        const hexColor = simpleColorCategory( shamatColor );
+
+        switch ( hexColor ) {
+
+          case 'black':
+            map.grid[x][y].push('wall hex');
+            break;
+
+          case 'blue':
+            map.grid[x][y].push('water');
+            break;
+
+          case 'red':
+            map.grid[x][y].push('lava');
+            break;
+
+        }
+
+        if ( shamatObject.hexes[i].decor.length > 0 ) {
+
+          if ( shamatObject.hexes[i].decor[0].component=='pentagram' ) {
+            map.grid[x][y].push('pentacle');
+
+          }
+
+          if ( shamatObject.hexes[i].decor[0].component=='trapdoor' ) {
+            map.grid[x][y].push('trapdoor');
+
+          }
+
+          if ( shamatObject.hexes[i].decor[0].component=='floor_pit' ) {
+            map.grid[x][y].push('pit');
+
+          }
+                }
+
+
+      }
+
+      loadStandardPalette( 2 );
+
+      megaHexOrigin = null;
+
+    }
+
+
+    function simpleColorCategory(hexColor) {
+        const hex = hexColor.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+
+        // Calculate brightness
+        const brightness = (r + g + b) / 3;
+
+        if (brightness < 50) return 'black';
+        if (brightness > 200) return 'white';
+
+        // Find dominant color
+        const max = Math.max(r, g, b);
+        if (r === max && r > g + b) return 'red';
+        if (g === max && g > r + b) return 'green';
+        if (b === max && b > r + g) return 'blue';
+
+        return 'mixed'; // When no single color dominates
+    }
+
 
 
     function drawWall( centerX, centerY ) {
@@ -2924,22 +3042,22 @@ function drawAngleLines( centerX, centerY ) {
             vertices.push({ x, y });
         }
 
-        // Create hexagon path for clipping
-        function createHexPath() {
-            ctx.beginPath();
-            ctx.moveTo(vertices[0].x, vertices[0].y);
-            for (let i = 1; i < vertices.length; i++) {
-                ctx.lineTo(vertices[i].x, vertices[i].y);
-            }
-            ctx.closePath();
-        }
-
-        // Save context state
-        ctx.save();
-
-        // Clip to hexagon shape
-        createHexPath();
-//        ctx.clip();
+//         // Create hexagon path for clipping
+//         function createHexPath() {
+//             ctx.beginPath();
+//             ctx.moveTo(vertices[0].x, vertices[0].y);
+//             for (let i = 1; i < vertices.length; i++) {
+//                 ctx.lineTo(vertices[i].x, vertices[i].y);
+//             }
+//             ctx.closePath();
+//         }
+//
+//         // Save context state
+//         ctx.save();
+//
+//         // Clip to hexagon shape
+//         createHexPath();
+// //        ctx.clip();
 
 
         const blobRadius = hexSide * 0.8; // Base size of the blob (increased from 0.15)
@@ -3302,6 +3420,10 @@ function drawAngleLines( centerX, centerY ) {
 
     function getContrastingShade(hexColor) {
       // Convert hex to HSL
+      if ( hexColor == undefined ) {
+        hexColor='#ffffff';
+      }
+
       const hsl = hexToHsl(hexColor);
 
       // Determine if color is light or dark
@@ -4279,22 +4401,85 @@ function drawAngleLines( centerX, centerY ) {
     }
 
 
-    function hexGridOf(canvasX, canvasY) {
-        // Calculate the column (x) first
-        const x = Math.floor((canvasX - hexSide * 3 / 2) / (3 * hexSide / 2));
+    function getHexFromCanvasPoint(canvasX, canvasY) {
+        // Step 1: Reverse the coordinate transformation to get approximate grid position
 
-        let y;
-        if (x % 2 == 0) {
-            // Even columns
-            y = Math.floor((canvasY - hexHeight / 2) / hexHeight) - 1;
+        // Reverse the X calculation: x = 2 * ((centerX - hexSide * 3/2) / (3 * hexSide))
+        let approxX = Math.round(2 * (canvasX - hexSide * 3/2) / (3 * hexSide));
+
+        // Reverse the Y calculation (depends on whether column is even or odd)
+        let approxY;
+        if (approxX % 2 == 0) {
+            // Even column: centerY = (y+1) * hexHeight + hexHeight / 2
+            // So: y = (centerY - hexHeight / 2) / hexHeight - 1
+            approxY = Math.round((canvasY - hexHeight / 2) / hexHeight - 1);
         } else {
-            // Odd columns
-            y = Math.floor((canvasY - hexHeight) / hexHeight);
+            // Odd column: centerY = y * hexHeight + hexHeight
+            // So: y = (centerY - hexHeight) / hexHeight
+            approxY = Math.round((canvasY - hexHeight) / hexHeight);
         }
 
-        return { x: x, y: y };
+        // Step 2: Check the 9 surrounding hexes (3x3 grid centered on our approximation)
+        let candidates = [];
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                let testX = approxX + dx;
+                let testY = approxY + dy;
+
+                // Only add valid hexes (you might have bounds checking)
+                if (inBounds(testX, testY)) {  // Replace with your bounds check
+                    candidates.push({x: testX, y: testY});
+                }
+            }
+        }
+
+        // Step 3: Find the closest hex among candidates
+        let closestHex = null;
+        let minDistance = Infinity;
+
+        for (let candidate of candidates) {
+            let center = centerOf(candidate.x, candidate.y);
+            let distance = Math.sqrt(
+                (canvasX - center.x) ** 2 +
+                (canvasY - center.y) ** 2
+            );
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestHex = candidate;
+            }
+        }
+
+        return closestHex;
     }
 
+
+//     function hexGridOf(canvasX, canvasY) {
+//         // Calculate the column (x) first
+//         const x = Math.floor((canvasX - hexSide * 3 / 2) / (3 * hexSide / 2));
+//
+//         let y;
+//         if (x % 2 == 0) {
+//             // Even columns
+//             y = Math.floor((canvasY - hexHeight / 2) / hexHeight) - 1;
+//         } else {
+//             // Odd columns
+//             y = Math.floor((canvasY - hexHeight) / hexHeight);
+//         }
+//
+//         return { x: x, y: y };
+//     }
+//
+//     function hexGridOf2( canvasX, canvasY ) {
+//
+// //      x = Math.floor( ( 2 * canvasX / 3 * hexSide ) - 1 );
+//       x = Math.floor( (canvasX / hexSide - 1.5) / 3 );
+//
+//       y=-1;
+//
+//       return { x: x, y: y };
+//
+//     }
 
 
     function textChange() {
@@ -4824,6 +5009,134 @@ function drawAngleLines( centerX, centerY ) {
       }
 
 
+      function drawPentacle() {
+          const ctx = offscreenContext;
+          const radius = hexSide * 0.9 / 2; // diameter to radius conversion
+          const starRadius = radius * 0.8; // Star fits within the circle
+          const innerRadius = starRadius * 0.382; // Golden ratio for pentacle proportions
+
+          ctx.save();
+
+          // Draw outer circle (subtle)
+          ctx.strokeStyle = '#444';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Calculate pentacle points
+          const outerPoints = [];
+          const innerPoints = [];
+
+          for (let i = 0; i < 5; i++) {
+              const angle = (i * 2 * Math.PI / 5) + (Math.PI / 2); // Start at bottom (flipped)
+
+              // Outer points (star tips)
+              outerPoints.push({
+                  x: centerX + Math.cos(angle) * starRadius,
+                  y: centerY + Math.sin(angle) * starRadius
+              });
+
+              // Inner points (star indentations)
+              const innerAngle = angle + (Math.PI / 5);
+              innerPoints.push({
+                  x: centerX + Math.cos(innerAngle) * innerRadius,
+                  y: centerY + Math.sin(innerAngle) * innerRadius
+              });
+          }
+
+          // Draw the pentacle star
+          ctx.strokeStyle = '#222';
+          ctx.fillStyle = '#333';
+          ctx.lineWidth = 2;
+          ctx.lineJoin = 'round';
+
+          ctx.beginPath();
+
+          // Start at first outer point
+          ctx.moveTo(outerPoints[0].x, outerPoints[0].y);
+
+          // Draw the star by alternating between outer and inner points
+          for (let i = 0; i < 5; i++) {
+              const nextOuter = (i + 1) % 5;
+              ctx.lineTo(innerPoints[i].x, innerPoints[i].y);
+              ctx.lineTo(outerPoints[nextOuter].x, outerPoints[nextOuter].y);
+          }
+
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Draw simple mystical marks around the circle
+          const markRadius = radius * 0.85;
+
+          ctx.strokeStyle = '#666';
+          ctx.lineWidth = 1.5;
+          ctx.lineCap = 'round';
+
+          for (let i = 0; i < 6; i++) {
+              const angle = (i * Math.PI / 3); // 6 positions around the circle
+              const markX = centerX + Math.cos(angle) * markRadius;
+              const markY = centerY + Math.sin(angle) * markRadius;
+
+              // Draw small cross marks
+              const markSize = radius * 0.08;
+
+              ctx.beginPath();
+              ctx.moveTo(markX - markSize, markY);
+              ctx.lineTo(markX + markSize, markY);
+              ctx.moveTo(markX, markY - markSize);
+              ctx.lineTo(markX, markY + markSize);
+              ctx.stroke();
+          }
+
+          // Draw additional runic-style marks
+          ctx.strokeStyle = '#555';
+          ctx.lineWidth = 1;
+
+          for (let i = 0; i < 12; i++) {
+              const angle = (i * Math.PI / 6); // 12 positions
+              const markRadius = radius * 0.95;
+              const markLength = radius * 0.05;
+
+              const startX = centerX + Math.cos(angle) * (markRadius - markLength);
+              const startY = centerY + Math.sin(angle) * (markRadius - markLength);
+              const endX = centerX + Math.cos(angle) * markRadius;
+              const endY = centerY + Math.sin(angle) * markRadius;
+
+              ctx.beginPath();
+              ctx.moveTo(startX, startY);
+              ctx.lineTo(endX, endY);
+              ctx.stroke();
+
+              // Add small perpendicular marks for runic effect
+              if (i % 3 === 0) {
+                  const perpAngle = angle + Math.PI / 2;
+                  const perpLength = markLength * 0.3;
+                  const perpX1 = endX + Math.cos(perpAngle) * perpLength;
+                  const perpY1 = endY + Math.sin(perpAngle) * perpLength;
+                  const perpX2 = endX - Math.cos(perpAngle) * perpLength;
+                  const perpY2 = endY - Math.sin(perpAngle) * perpLength;
+
+                  ctx.beginPath();
+                  ctx.moveTo(perpX1, perpY1);
+                  ctx.lineTo(perpX2, perpY2);
+                  ctx.stroke();
+              }
+          }
+
+          // Draw inner circle for mystical effect
+          ctx.strokeStyle = '#444';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, innerRadius * 1.2, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.restore();
+      }
+
+
+
       function drawDiagonalLines() {
         offscreenContext.save();
 
@@ -5038,7 +5351,6 @@ function drawAngleLines( centerX, centerY ) {
 
         }
       }
-
 
       if ( megaHexOrigin ) {
 
@@ -5286,9 +5598,13 @@ function drawAngleLines( centerX, centerY ) {
 
               if ( map.grid[xI][yI].includes('altar') ) {
 
-//                offscreenContext.drawImage( document.getElementById('table'), centerI.x-hexHeight * 0.35, centerI.y-hexHeight * 0.35, hexHeight * 0.7, hexHeight * 0.7 ) ;
-
                 drawStoneAltar();
+
+              }
+
+              if ( map.grid[xI][yI].includes('pentacle') ) {
+
+                drawPentacle();
 
               }
 
@@ -6138,7 +6454,7 @@ function drawAngleLines( centerX, centerY ) {
       startX = event.clientX;
       startY = event.clientY;
 
-      let maybe = hexGridOf( event.clientX, event.clientY);
+//      let maybe = getHexFromCanvasPoint( event.clientX, event.clientY);
 
 //      console.log( maybe.x, maybe.y );
 
@@ -6284,6 +6600,12 @@ function drawAngleLines( centerX, centerY ) {
             case 'altar':
               if (!map.grid[theHex.x][theHex.y].includes('altar')) {
                   map.grid[theHex.x][theHex.y].push('altar');
+              }
+              break;
+
+            case 'pentacle':
+              if (!map.grid[theHex.x][theHex.y].includes('pentacle')) {
+                  map.grid[theHex.x][theHex.y].push('pentacle');
               }
               break;
 
@@ -7677,6 +7999,10 @@ function updateFileSizeEstimate() {
           setTool('altar');
           break;
 
+        case 'j':
+          setTool('pentacle');
+          break;
+
         case 'o':
           setTool('tar');
           break;
@@ -7770,6 +8096,7 @@ function updateFileSizeEstimate() {
       <span class='menuItemSpan' onclick='setTool("column")'>column or tree(q)</span><br>
       <span class='menuItemSpan' onclick='setTool("table")'>wood table(f)</span><br>
       <span class='menuItemSpan' onclick='setTool("altar")'>stone altar(g)</span><br>
+      <span class='menuItemSpan' onclick='setTool("pentacle")'>pentacle(j)</span><br>
       <span class='menuItemSpan' onclick='setTool("tar")'>tar pit(o)</span><br>
       <span class='menuItemSpan' onclick='setTool("bridge")'>bridge(b)</span><br>
       <span class='menuItemSpan' onclick='setTool("star")'>star(y)</span><br>
@@ -8315,6 +8642,10 @@ function updateFileSizeEstimate() {
                 <div class="tertools-tool-name">Stone Altar</div>
                 <div class="tertools-key-combo">g</div>
                 <div class="tertools-description">Does not block missiles or jabs. 3 MA to climb onto to get the height bonuses.</div>
+
+                <div class="tertools-tool-name">Pentacle</div>
+                <div class="tertools-key-combo">j</div>
+                <div class="tertools-description">Purely cosmetic. Let us say this is for Shamat compatibility.</div>
 
                 <div class="tertools-tool-name">Bridge</div>
                 <div class="tertools-key-combo">b</div>
