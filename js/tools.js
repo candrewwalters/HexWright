@@ -19,10 +19,10 @@
 
     function applyTool( event ) {
 
-      let offscreenX = event.offsetX * ( 2 * zoomX / displayCanvas.width ) + ( focusX - zoomX );
-      let offscreenY = event.offsetY * ( 2 * zoomY / displayCanvas.height ) + ( focusY - zoomY );
+      // Same transform that drew the map, so the click hits the hex shown under the pointer.
+      const point = displayToOffscreen( event.offsetX, event.offsetY );
 
-      theHex = offscreenPointToHex( offscreenX, offscreenY );
+      theHex = offscreenPointToHex( point.x, point.y );
       // console.log(theHex);
       // console.log(keys(theHex));
       // if ( keys(theHex) == ['undefined'] ) return;

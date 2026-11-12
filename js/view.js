@@ -102,10 +102,7 @@
               focusX -= deltaX;
               focusY -= deltaY;
 
-              focusX = Math.max(zoomX, Math.min(focusX, offscreenCanvas.width - zoomX));
-              focusY = Math.max(zoomY, Math.min(focusY, offscreenCanvas.height - zoomY));
-
-              offscreenToDisplay();
+              offscreenToDisplay();   // clamps the focus to the map
 
               // Update start position for next move
               startX = event.clientX;
@@ -133,6 +130,38 @@
     }
 
 
+    // --- View transform -----------------------------------------------------------------------------
+    // The visible window is 2*zoomX by 2*zoomY offscreen pixels centered on (focusX, focusY).
+    // zoomX/zoomY share the display canvas's aspect ratio, so one scale works for both axes.
+    // Drawing (offscreenToDisplay) and clicking (displayToOffscreen) both use this, so they always agree.
+
+    function viewTransform() {
+      return {
+        scale: displayCanvas.height / ( 2 * zoomY ),   // display pixels per offscreen pixel
+        left: focusX - zoomX,                          // offscreen x at the display's left edge
+        top: focusY - zoomY                            // offscreen y at the display's top edge
+      };
+    }
+
+    function displayToOffscreen( displayX, displayY ) {
+      const view = viewTransform();
+      return { x: view.left + displayX / view.scale, y: view.top + displayY / view.scale };
+    }
+
+    // Keep the view on the map; if the map is smaller than the view in a direction, center it.
+    function clampFocus() {
+      if ( 2 * zoomX >= offscreenCanvas.width ) {
+        focusX = offscreenCanvas.width / 2;
+      } else {
+        focusX = Math.max( zoomX, Math.min( focusX, offscreenCanvas.width - zoomX ) );
+      }
+      if ( 2 * zoomY >= offscreenCanvas.height ) {
+        focusY = offscreenCanvas.height / 2;
+      } else {
+        focusY = Math.max( zoomY, Math.min( focusY, offscreenCanvas.height - zoomY ) );
+      }
+    }
+
     function offscreenToDisplay() {
 
       displayCanvas.width = mapDisplayDiv.clientWidth;
@@ -141,23 +170,32 @@
       displayContext.fillStyle = map.palette.offboard;
       displayContext.fillRect(0, 0, displayCanvas.width, displayCanvas.height);
 
-      focusX = Math.max(zoomX, Math.min(focusX, offscreenCanvas.width - zoomX));
-      focusY = Math.max(zoomY, Math.min(focusY, offscreenCanvas.height - zoomY));
+      // Display hidden (e.g. text-only layout): nothing to draw, and the math below would divide by zero.
+      if ( !displayCanvas.width || !displayCanvas.height ) return;
 
-
+      // Update the zoom window for the current zoom level and canvas shape FIRST, then clamp the focus
+      // against it. (Clamping before this used the previous zoom's size and pushed the view off the map.)
       zoomY = zoomLevel;
       zoomX = zoomLevel * ( displayCanvas.width / displayCanvas.height );
+      clampFocus();
 
-      if ( 2 * zoomX > offscreenCanvas.width ) {
-        focusX = offscreenCanvas.width / 2;
+      // Copy only the part of the window that actually lies on the map, to the matching spot on screen.
+      // Never hand drawImage a source rectangle outside the offscreen canvas: browsers disagree on how to
+      // handle that (Safari stretches it), which squished the map and made clicks miss.
+      const view = viewTransform();
+      const srcLeft = Math.max( 0, view.left );
+      const srcTop = Math.max( 0, view.top );
+      const srcRight = Math.min( offscreenCanvas.width, view.left + 2 * zoomX );
+      const srcBottom = Math.min( offscreenCanvas.height, view.top + 2 * zoomY );
+
+      if ( srcRight > srcLeft && srcBottom > srcTop ) {
+        displayContext.drawImage(
+          offscreenCanvas,
+          srcLeft, srcTop, srcRight - srcLeft, srcBottom - srcTop,
+          ( srcLeft - view.left ) * view.scale, ( srcTop - view.top ) * view.scale,
+          ( srcRight - srcLeft ) * view.scale, ( srcBottom - srcTop ) * view.scale
+        );
       }
-
-      if ( 2 * zoomY > offscreenCanvas.height ) {
-        focusY = offscreenCanvas.height / 2;
-      }
-
-
-      displayContext.drawImage( offscreenCanvas, focusX - zoomX, focusY - zoomY, zoomX * 2, zoomY * 2, 0, 0, displayCanvas.width, displayCanvas.height );
 
       miniMapContext.drawImage(offscreenCanvas,0,0,offscreenCanvas.width,offscreenCanvas.height,0,0,miniMapCanvas.width,miniMapCanvas.height);
 
