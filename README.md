@@ -36,5 +36,19 @@ clicks are mapped back through the same transform (`displayToOffscreen`), so dra
 
 ## Map data
 
-The saved format is plain text (see `io/mapText.js`), e.g. `Width: 12`, `Walls: 3,4 3,5`,
-or `5,6 fire shadow`. In memory, `map.grid[x][y]` is an array of feature-name strings for each hex.
+Every hex has exactly **one terrain** — `clear`, `offboard`, `wall`, `pit` or `water` — which never
+changes, plus any number of **features** sitting on top (fire, sticky, trapdoor, lava, chest…), which may.
+Features are interchangeable: every "fire" is the same, so a hex lists each feature once.
+Hexes are identified by their printed number, `"x,y"` (column, row, from 0; odd columns sit half a hex higher).
+Pieces that move during play (fighters etc.) are not part of the map; they just refer to a hex number.
+
+In memory, `map.grid[x][y]` is an array of words (at most one terrain word). `core/hexContents.js` defines
+terrain vs. features and normalizes every hex after each edit or parse, so the two formats below always agree.
+
+Two import/export formats, both readable by **Load from Disk** or by pasting into the text box:
+
+- **Map text** (`io/mapText.js`) — for people. Shown in the text box and updated on every change, e.g.
+  `Width: 12`, `Walls: 3,4 3,5`, `5,6 fire chest`, `stone bridge from 1,2 to 4,2`.
+- **Game file, JSON** (`io/gameJson.js`) — for programs. Written by **Save Game File (JSON)**. Lists every hex as
+  `{ "id": "3,4", "x": 3, "y": 4, "terrain": "pit", "features": ["fire"] }`, plus bridges, the megahex origin,
+  and display settings. Format details are at the top of `io/gameJson.js`.

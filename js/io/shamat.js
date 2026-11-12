@@ -79,6 +79,8 @@
 
       megaHexOrigin = null;
 
+      normalizeGrid();   // one terrain per hex (core/hexContents.js)
+
       convertObjectToText();
 
     }

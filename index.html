@@ -19,6 +19,7 @@
     <script src="js/core/state.js"></script>
     <script src="js/render/color.js"></script>
     <script src="js/core/hexGeometry.js"></script>
+    <script src="js/core/hexContents.js"></script>
     <script src="js/render/terrain.js"></script>
     <script src="js/render/features.js"></script>
     <script src="js/render/drawBridge.js"></script>
@@ -26,6 +27,7 @@
     <script src="js/render/mapRenderer.js"></script>
     <script src="js/io/mapText.js"></script>
     <script src="js/io/shamat.js"></script>
+    <script src="js/io/gameJson.js"></script>
     <script src="js/io/files.js"></script>
     <script src="js/ui/palette.js"></script>
     <script src="js/ui/mapInfo.js"></script>
@@ -108,7 +110,8 @@
       <span class='menuItemSpan' onclick="displayAllText()">All Text (t)</span><br>
       <span class='menuItemSpan' onclick="displaySplit()">Split Map/Text (s)</span><br>
       <span class='menuItemSpan' onclick='toggleHelpDiv()'>Help (?)</span><br>
-      <span class='menuItemSpan' onclick='saveToDownloads()'>Save To Downloads</span><br>
+      <span class='menuItemSpan' onclick='saveToDownloads()'>Save Map Text</span><br>
+      <span class='menuItemSpan' onclick='saveGameFile()'>Save Game File (JSON)</span><br>
       <span class='menuItemSpan' onclick='loadMap()'>Load from Disk</span><br>
       <span class='menuItemSpan' onclick='showExportDialog()'>Save Hi Res Image</span><br>
       <span class='menuItemSpan' onclick='showSettings()'>Settings (;)</span><br>
@@ -501,11 +504,14 @@
                     <span class="key-combo">s</span>
                     Start new projects or elements
                     </li>
-                    <li><strong>Save To Downloads</strong>
-                    Start new projects or elements
+                    <li><strong>Save Map Text</strong>
+                    Saves the readable text description (the text box) to your Downloads as a .txt file. This is the easiest format to read and edit by hand.
+                    </li>
+                    <li><strong>Save Game File (JSON)</strong>
+                    Saves the map as a .json file for programs, such as a game, to read. Every hex is listed with its one terrain (clear, offboard, wall, pit or water) and its features (fire, trapdoor, anything else you've added).
                     </li>
                     <li><strong>Load from Disk</strong>
-                    Start new projects or elements
+                    Opens a map text file, a HexWright game file (JSON), or a ShaMat map. You can also paste any of these straight into the text box.
                     </li>
                     <li><strong>Save Hi Res Image</strong>
                     Start new projects or elements

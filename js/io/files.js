@@ -1,22 +1,28 @@
 // HexWright — Saving to / loading from files.
 // (Classic script: shares the global scope with the other js/ files.)
 
+// "Map Name 2026-11-12 1503"
+function fileStamp() {
+  const d = new Date(), pad = n => String( n ).padStart( 2, '0' );
+  return d.getFullYear() + '-' + pad( d.getMonth() + 1 ) + '-' + pad( d.getDate() ) + ' ' + pad( d.getHours() ) + pad( d.getMinutes() );
+}
+
+function downloadFile( contents, fileName, mimeType ) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL( new Blob( [ contents ], { type: mimeType } ) );
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL( a.href );
+}
+
+// The human-readable text, exactly as shown in the text box.
 function saveToDownloads() {
+  downloadFile( document.getElementById('textDisplayArea').value, map.name + ' ' + fileStamp() + '.txt', 'text/plain' );
+}
 
-    const a = document.createElement('a');
-    const file = new Blob([ document.getElementById('textDisplayArea').value ], {type: 'text/plain'});
-
-    var d = new Date();
-
-              dateString = d.getMonth() + "-" + d.getDate() + "-" + d.getYear() + " " + d.getHours() + " " + d.getMinutes();
-
-    a.href= URL.createObjectURL(file);
-    a.download = map.name + " " + dateString;
-    a.click();
-
-    URL.revokeObjectURL(a.href);
-
-
+// The game file (JSON), built from the current map.
+function saveGameFile() {
+  downloadFile( mapToGameJsonText(), map.name + ' ' + fileStamp() + '.json', 'application/json' );
 }
 
 

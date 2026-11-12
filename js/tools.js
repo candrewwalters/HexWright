@@ -243,6 +243,9 @@
 
         }
 
+        // Keep the edited hex in canonical form (one terrain, no duplicates) before regenerating the text.
+        map.grid[theHex.x][theHex.y] = normalizeHex( map.grid[theHex.x][theHex.y] );
+
         convertObjectToText();
         objectToOffscreen();
         offscreenToDisplay();

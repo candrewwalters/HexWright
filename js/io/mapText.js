@@ -91,11 +91,11 @@
         for ( let x = 0; x < map.width; x++ ) {
           for ( let y = 0; y < map.height; y++ ) {
 
-            if ( map.grid[x][y].some(item => item.includes('offboard')) ) {
+            if ( map.grid[x][y].includes('offboard') ) {
               offboardList += x+','+y+' ';
             }
 
-            if ( map.grid[x][y].some(item => item.includes('wall')) ) {
+            if ( map.grid[x][y].includes('wall hex') ) {
               wallList += x+','+y+' ';
             }
 
@@ -218,17 +218,35 @@
           newText = addListToText(newText, label, list);
         });
 
+        // Anything the lists above don't cover (e.g. a "chest" typed by hand) is written per hex,
+        // so nothing is lost when the text is regenerated.
+        const listedWords = [ 'offboard', 'wall hex', 'water', 'pond', 'river', 'stream', 'pool', 'path', 'paths',
+          'column', 'columns', 'body', 'bodies', 'debris', 'trapdoor', 'trapdoors', 'table', 'tables', 'altar', 'altars',
+          'pentacle', 'pentacles', 'barricade', 'barricades', 'fire', 'shadow', 'lava', 'stone', 'tar', 'sticky',
+          'slippery', 'pit', 'star', 'darker', 'lighter' ];
+        for ( let x = 0; x < map.width; x++ ) {
+          for ( let y = 0; y < map.height; y++ ) {
+            const others = map.grid[x][y].filter( w => !listedWords.includes( w ) && !DERIVED_WORDS.includes( w ) );
+            if ( others.length ) {
+              newText += x + ',' + y + ' ' + others.join(' ') + '\n';
+            }
+          }
+        }
+
 
       } else {
 
         for ( let x = 0; x < map.width; x++ ) {
           for ( let y = 0; y < map.height; y++ ) {
 
-            if ( map.grid[x][y].length == 0 || ( map.grid[x][y].lrngth == 1 && map.grid[x][y][0] === ['clear']  ) ) {
+            // Bridge words are derived from the bridge lines below, so they are not written per hex.
+            const words = map.grid[x][y].filter( w => !DERIVED_WORDS.includes( w ) );
+            if ( words.length == 0 ) {
               continue;
             }
 
-            newText += x + ',' + y + ' ' + map.grid[x][y].join(' ') + '\n';
+            // Terrain is written by its game name ("wall", not the two-word "wall hex", which would split).
+            newText += x + ',' + y + ' ' + words.map( w => isTerrainWord( w ) ? TERRAIN_WORDS[ w ] : w ).join(' ') + '\n';
 
 
           }
@@ -317,9 +335,17 @@
         lines.shift();
       }
 
-      if ( lines[0].startsWith('{"shamat') ) {
+      if ( lines.length && lines[0].startsWith('{"shamat') ) {
 
         convertShamatToObject();
+        return;
+
+      }
+
+      // A HexWright game file pasted or loaded into the text box: convert it to the readable text.
+      if ( lines.length && lines[0].startsWith('{') && isGameJsonText( document.getElementById("textDisplayArea").value ) ) {
+
+        importGameJson( document.getElementById("textDisplayArea").value );
         return;
 
       }
@@ -657,6 +683,9 @@
 
 
       megaHexOrigin = findMegahexCoordinates(lines)
+
+      // One terrain per hex, aliases resolved, no duplicates (see core/hexContents.js).
+      normalizeGrid();
 
 //      console.table(map.palette);
 
