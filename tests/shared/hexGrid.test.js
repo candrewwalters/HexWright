@@ -1,7 +1,7 @@
-// Run with:  node --test tests/*.test.js
+// Run with:  node --test "tests/**/*.test.js"
 const test = require( 'node:test' );
 const assert = require( 'node:assert/strict' );
-const H = require( '../js/shared/hexGrid.js' );
+const H = require( '../../js/shared/hexGrid.js' );
 
 // The editor's original neighbor rules (hexAdjacent before it used HexGrid), kept as the reference.
 function referenceAdjacent( x, y, f ) {

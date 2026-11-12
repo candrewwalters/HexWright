@@ -24,6 +24,8 @@ js/
   view.js             Viewport: zoom, pan, display canvas, minimap
   tools.js            Editing tools
   app.js              Startup (initApp), text-change/undo, save-on-exit
+tests/shared/         Tests for js/shared (run with Node)
+scripts/sync-shared.sh  Copies js/shared and tests/shared into the game repo
 ```
 
 All scripts are classic `<script>` files sharing one global scope. None of them run code at load time
@@ -42,7 +44,11 @@ HexGrid.range('3,4', 2)             // everything within 2 hexes
 HexGrid.megahexCenter('3,4', map.megahexOrigin)
 ```
 
-Tests: `node --test tests/*.test.js` (Node's built-in runner; nothing to install).
+The master copy of everything in `js/shared/` (and its tests in `tests/shared/`) lives here. The game
+(TFT_Trainer, cloned beside this repo as `../game`) gets a mirror: after changing shared code, run
+`scripts/sync-shared.sh`, then commit in both repos. `scripts/sync-shared.sh --check` reports drift.
+
+Tests: `node --test "tests/**/*.test.js"` (Node's built-in runner; nothing to install).
 
 ## Rendering model
 
