@@ -363,11 +363,9 @@ function featureInDirection( x, y, direction, feature ) {
 }
 
 
+// Steps between two hexes. (Previously max(|dx|,|dy|), which is only right on square grids.)
 function distanceBetween( x1, y1, x2, y2 ) {
-
-  return Math.max( Math.abs( x2 - x1 ), Math.abs ( y2 - y1 ) );
-
-
+  return HexGrid.distance( { x: x1, y: y1 }, { x: x2, y: y2 } );
 }
 
 
@@ -460,51 +458,7 @@ function bridgeDirection(start, end) {
     }
 
 
+// Neighbor of hex x,y in direction f (0 N, 1 NE, 2 SE, 3 S, 4 SW, 5 NW). See js/shared/hexGrid.js.
 function hexAdjacent( x, y, f ) {
-
-  f = ((f % 6) + 6) % 6;
-
-    if ( x%2 ) {
-        switch ( f ) {
-          case 0:
-            return { x: x, y: y-1 };
-            break;
-          case 1:
-            return { x: x+1, y: y-1 };
-            break;
-          case 2:
-            return { x: x+1, y: y };
-            break;
-          case 3:
-            return { x: x, y: y+1 };
-            break;
-          case 4:
-            return { x: x-1, y: y };
-            break;
-          case 5:
-            return { x: x-1, y: y-1 };
-            break;
-        }
-    } else {
-        switch ( f ) {
-          case 0:
-            return { x: x, y: y-1 };
-            break;
-          case 1:
-            return { x: x+1, y: y };
-            break;
-          case 2:
-            return { x: x+1, y: y+1 };
-            break;
-          case 3:
-            return { x: x, y: y+1 };
-            break;
-          case 4:
-            return { x: x-1, y: y+1 };
-            break;
-          case 5:
-            return { x: x-1, y: y };
-            break;
-        }
-    }
+  return HexGrid.neighbor( { x, y }, f );
 }

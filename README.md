@@ -9,6 +9,7 @@ index.html            Markup only; loads the CSS and scripts below
 css/                  main.css (layout), helpWindow.css, mapInfo.css, niftyButton.css
 art/                  Images used for map features and UI
 js/
+  shared/hexGrid.js   Hex-grid math shared with the game: neighbors, distance, lines, rings, megahexes
   core/state.js       Global constants and editor state (hex size, zoom/focus, undo)
   core/hexGeometry.js Grid math: hex centers, vertices, adjacency, hit testing
   render/             Drawing onto the offscreen canvas
@@ -27,6 +28,21 @@ js/
 
 All scripts are classic `<script>` files sharing one global scope. None of them run code at load time
 except to register DOMContentLoaded handlers, so you can move a function between files freely.
+
+## Shared hex-grid utilities
+
+`js/shared/hexGrid.js` is used by both this editor and the game, so they always agree on the grid.
+It defines one global, `HexGrid` (and also works in Node). Hexes can be passed as ids (`"3,4"`) or `{x, y}`:
+
+```js
+HexGrid.neighbors('3,4')            // the 6 adjacent hexes, clockwise from north
+HexGrid.distance('0,0', '3,4')      // steps between hexes
+HexGrid.line('0,0', '5,2')          // hexes a straight line passes through (line of sight)
+HexGrid.range('3,4', 2)             // everything within 2 hexes
+HexGrid.megahexCenter('3,4', map.megahexOrigin)
+```
+
+Tests: `node --test tests/*.test.js` (Node's built-in runner; nothing to install).
 
 ## Rendering model
 
