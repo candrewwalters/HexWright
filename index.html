@@ -3220,7 +3220,7 @@ function drawAngleLines( centerX, centerY ) {
 
         ctx.closePath();
         ctx.fill();
-        ctx.stroke();
+//        ctx.stroke();
 
         //////////////////////////////waterRipple
 
@@ -5351,7 +5351,7 @@ function drawAngleLines( centerX, centerY ) {
       offscreenCanvas.width = boardWidth;
       offscreenCanvas.height = boardHeight;
 
-      maxZoomLevel = Math.min( offscreenCanvas.width/2, offscreenCanvas.height/2 );
+      maxZoomLevel = Math.min( offscreenCanvas.width/2, offscreenCanvas.height/2 )+9999999999;
 
       offscreenContext.fillStyle = map.palette.offboard;
       offscreenContext.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
@@ -5478,10 +5478,12 @@ function drawAngleLines( centerX, centerY ) {
 
               if ( map.lineStyle == 'normal' ) {
 
+                offscreenContext.strokeStyle = map.palette.lines;
                 offscreenContext.stroke();
 
               } else if ( map.lineStyle == 'handDrawn' ) {
 
+                offscreenContext.strokeStyle = map.palette.lines;
                 unevenLine( centerI.x - hexSide, centerI.y, centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
                 unevenLine( centerI.x - hexSide / 2, centerI.y - hexHeight / 2, centerI.x + hexSide / 2, centerI.y - hexHeight / 2 );
                 unevenLine( centerI.x + hexSide / 2, centerI.y - hexHeight / 2, centerI.x + hexSide, centerI.y );
@@ -5489,10 +5491,12 @@ function drawAngleLines( centerX, centerY ) {
 
               } else if ( map.lineStyle == 'cornersOnly' ) {
 
+                offscreenContext.strokeStyle = map.palette.lines;
                 drawHexCorners();
 
               }
 
+              offscreenContext.beginPath();
 
               if ( map.grid[xI][yI].includes('column') ) {
                 offscreenContext.fillStyle = map.palette.columns;
@@ -6157,126 +6161,126 @@ function drawAngleLines( centerX, centerY ) {
     }
 
 
-    function traceLiquidHex( x, y, liquid ) {
-
-      centerI = centerOf( x, y );
-
-      offscreenContext.beginPath();
-
-      // if ( featureInDirection( x, y, 5, liquid ) || featureInDirection( x, y, 0, liquid ) ) {
-      //   offscreenContext.moveTo( centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
-      // } else {
-      //   offscreenContext.moveTo( (centerI.x - hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
-      // }
-      //
-      // if ( featureInDirection( x, y, 0, liquid ) ) {
-      //   offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2)*0.9 );
-      // } else {
-      //   offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2) );
-      // }
-      //
-      // if ( featureInDirection( x, y, 0, liquid ) || featureInDirection( x, y, 1, liquid ) ) {
-      //   offscreenContextl.lineTo( centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
-      // } else {
-      //   offscreenContext.lineTo( (centerI.x + hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
-      // }
-      //
-      // if ( featureInDirection( x, y, 1, liquid )  ) {
-      //   offscreenContext.moveTo( centerI.x + hexSide * 3/4, centerI.y - hexHeight / 4 );
-      // } else {
-      //   offscreenContext.moveTo( (centerI.x + hexSide * 3/4)*0.9, (centerI.y - hexHeight / 4)*0.9 );
-      // }
-      //
-
-      // Start at top-left vertex
-      if ( featureInDirection( x, y, 5, liquid ) || featureInDirection( x, y, 0, liquid ) ) {
-        offscreenContext.moveTo( centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
-      } else {
-        offscreenContext.moveTo( (centerI.x - hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
-      }
-
-      // To top midpoint
-      if ( featureInDirection( x, y, 0, liquid ) ) {
-        offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2)*0.9 );
-      } else {
-        offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2) );
-      }
-
-      // To top-right vertex
-      if ( featureInDirection( x, y, 0, liquid ) || featureInDirection( x, y, 1, liquid ) ) {
-        offscreenContext.lineTo( centerI.x + hexSide / 2, centerI.y - hexHeight / 2 );
-      } else {
-        offscreenContext.lineTo( (centerI.x + hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
-      }
-
-      // To right midpoint
-      if ( featureInDirection( x, y, 1, liquid ) ) {
-        offscreenContext.lineTo( centerI.x + hexSide * 3/4, (centerI.y - hexHeight / 4)*0.9 );
-      } else {
-        offscreenContext.lineTo( centerI.x + hexSide * 3/4, centerI.y - hexHeight / 4 );
-      }
-
-      // To right vertex
-      if ( featureInDirection( x, y, 1, liquid ) || featureInDirection( x, y, 2, liquid ) ) {
-        offscreenContext.lineTo( centerI.x + hexSide, centerI.y );
-      } else {
-        offscreenContext.lineTo( (centerI.x + hexSide)*0.9, centerI.y );
-      }
-
-      // To bottom-right midpoint
-      if ( featureInDirection( x, y, 2, liquid ) ) {
-        offscreenContext.lineTo( centerI.x + hexSide * 3/4, (centerI.y + hexHeight / 4)*0.9 );
-      } else {
-        offscreenContext.lineTo( centerI.x + hexSide * 3/4, centerI.y + hexHeight / 4 );
-      }
-
-      // To bottom-right vertex
-      if ( featureInDirection( x, y, 2, liquid ) || featureInDirection( x, y, 3, liquid ) ) {
-        offscreenContext.lineTo( centerI.x + hexSide / 2, centerI.y + hexHeight / 2 );
-      } else {
-        offscreenContext.lineTo( (centerI.x + hexSide / 2)*0.9, (centerI.y + hexHeight / 2)*0.9 );
-      }
-
-      // To bottom midpoint
-      if ( featureInDirection( x, y, 3, liquid ) ) {
-        offscreenContext.lineTo( centerI.x, (centerI.y + hexHeight / 2)*0.9 );
-      } else {
-        offscreenContext.lineTo( centerI.x, centerI.y + hexHeight / 2 );
-      }
-
-      // To bottom-left vertex
-      if ( featureInDirection( x, y, 3, liquid ) || featureInDirection( x, y, 4, liquid ) ) {
-        offscreenContext.lineTo( centerI.x - hexSide / 2, centerI.y + hexHeight / 2 );
-      } else {
-        offscreenContext.lineTo( (centerI.x - hexSide / 2)*0.9, (centerI.y + hexHeight / 2)*0.9 );
-      }
-
-      // To left midpoint
-      if ( featureInDirection( x, y, 4, liquid ) ) {
-        offscreenContext.lineTo( (centerI.x - hexSide * 3/4)*0.9, (centerI.y + hexHeight / 4)*0.9 );
-      } else {
-        offscreenContext.lineTo( centerI.x - hexSide * 3/4, centerI.y + hexHeight / 4 );
-      }
-
-      // To left vertex
-      if ( featureInDirection( x, y, 4, liquid ) || featureInDirection( x, y, 5, liquid ) ) {
-        offscreenContext.lineTo( centerI.x - hexSide, centerI.y );
-      } else {
-        offscreenContext.lineTo( (centerI.x - hexSide)*0.9, centerI.y );
-      }
-
-      // To top-left midpoint
-      if ( featureInDirection( x, y, 5, liquid ) ) {
-        offscreenContext.lineTo( (centerI.x - hexSide * 3/4)*0.9, (centerI.y - hexHeight / 4)*0.9 );
-      } else {
-        offscreenContext.lineTo( centerI.x - hexSide * 3/4, centerI.y - hexHeight / 4 );
-      }
-
-
-      offscreenContext.closePath()
-
-
-    }
+    // function traceLiquidHex( x, y, liquid ) {
+    //
+    //   centerI = centerOf( x, y );
+    //
+    //   offscreenContext.beginPath();
+    //
+    //   // if ( featureInDirection( x, y, 5, liquid ) || featureInDirection( x, y, 0, liquid ) ) {
+    //   //   offscreenContext.moveTo( centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
+    //   // } else {
+    //   //   offscreenContext.moveTo( (centerI.x - hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
+    //   // }
+    //   //
+    //   // if ( featureInDirection( x, y, 0, liquid ) ) {
+    //   //   offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2)*0.9 );
+    //   // } else {
+    //   //   offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2) );
+    //   // }
+    //   //
+    //   // if ( featureInDirection( x, y, 0, liquid ) || featureInDirection( x, y, 1, liquid ) ) {
+    //   //   offscreenContextl.lineTo( centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
+    //   // } else {
+    //   //   offscreenContext.lineTo( (centerI.x + hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
+    //   // }
+    //   //
+    //   // if ( featureInDirection( x, y, 1, liquid )  ) {
+    //   //   offscreenContext.moveTo( centerI.x + hexSide * 3/4, centerI.y - hexHeight / 4 );
+    //   // } else {
+    //   //   offscreenContext.moveTo( (centerI.x + hexSide * 3/4)*0.9, (centerI.y - hexHeight / 4)*0.9 );
+    //   // }
+    //   //
+    //
+    //   // Start at top-left vertex
+    //   if ( featureInDirection( x, y, 5, liquid ) || featureInDirection( x, y, 0, liquid ) ) {
+    //     offscreenContext.moveTo( centerI.x - hexSide / 2, centerI.y - hexHeight / 2 );
+    //   } else {
+    //     offscreenContext.moveTo( (centerI.x - hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
+    //   }
+    //
+    //   // To top midpoint
+    //   if ( featureInDirection( x, y, 0, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2)*0.9 );
+    //   } else {
+    //     offscreenContext.lineTo( centerI.x, (centerI.y - hexHeight / 2) );
+    //   }
+    //
+    //   // To top-right vertex
+    //   if ( featureInDirection( x, y, 0, liquid ) || featureInDirection( x, y, 1, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x + hexSide / 2, centerI.y - hexHeight / 2 );
+    //   } else {
+    //     offscreenContext.lineTo( (centerI.x + hexSide / 2)*0.9, (centerI.y - hexHeight / 2)*0.9 );
+    //   }
+    //
+    //   // To right midpoint
+    //   if ( featureInDirection( x, y, 1, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x + hexSide * 3/4, (centerI.y - hexHeight / 4)*0.9 );
+    //   } else {
+    //     offscreenContext.lineTo( centerI.x + hexSide * 3/4, centerI.y - hexHeight / 4 );
+    //   }
+    //
+    //   // To right vertex
+    //   if ( featureInDirection( x, y, 1, liquid ) || featureInDirection( x, y, 2, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x + hexSide, centerI.y );
+    //   } else {
+    //     offscreenContext.lineTo( (centerI.x + hexSide)*0.9, centerI.y );
+    //   }
+    //
+    //   // To bottom-right midpoint
+    //   if ( featureInDirection( x, y, 2, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x + hexSide * 3/4, (centerI.y + hexHeight / 4)*0.9 );
+    //   } else {
+    //     offscreenContext.lineTo( centerI.x + hexSide * 3/4, centerI.y + hexHeight / 4 );
+    //   }
+    //
+    //   // To bottom-right vertex
+    //   if ( featureInDirection( x, y, 2, liquid ) || featureInDirection( x, y, 3, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x + hexSide / 2, centerI.y + hexHeight / 2 );
+    //   } else {
+    //     offscreenContext.lineTo( (centerI.x + hexSide / 2)*0.9, (centerI.y + hexHeight / 2)*0.9 );
+    //   }
+    //
+    //   // To bottom midpoint
+    //   if ( featureInDirection( x, y, 3, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x, (centerI.y + hexHeight / 2)*0.9 );
+    //   } else {
+    //     offscreenContext.lineTo( centerI.x, centerI.y + hexHeight / 2 );
+    //   }
+    //
+    //   // To bottom-left vertex
+    //   if ( featureInDirection( x, y, 3, liquid ) || featureInDirection( x, y, 4, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x - hexSide / 2, centerI.y + hexHeight / 2 );
+    //   } else {
+    //     offscreenContext.lineTo( (centerI.x - hexSide / 2)*0.9, (centerI.y + hexHeight / 2)*0.9 );
+    //   }
+    //
+    //   // To left midpoint
+    //   if ( featureInDirection( x, y, 4, liquid ) ) {
+    //     offscreenContext.lineTo( (centerI.x - hexSide * 3/4)*0.9, (centerI.y + hexHeight / 4)*0.9 );
+    //   } else {
+    //     offscreenContext.lineTo( centerI.x - hexSide * 3/4, centerI.y + hexHeight / 4 );
+    //   }
+    //
+    //   // To left vertex
+    //   if ( featureInDirection( x, y, 4, liquid ) || featureInDirection( x, y, 5, liquid ) ) {
+    //     offscreenContext.lineTo( centerI.x - hexSide, centerI.y );
+    //   } else {
+    //     offscreenContext.lineTo( (centerI.x - hexSide)*0.9, centerI.y );
+    //   }
+    //
+    //   // To top-left midpoint
+    //   if ( featureInDirection( x, y, 5, liquid ) ) {
+    //     offscreenContext.lineTo( (centerI.x - hexSide * 3/4)*0.9, (centerI.y - hexHeight / 4)*0.9 );
+    //   } else {
+    //     offscreenContext.lineTo( centerI.x - hexSide * 3/4, centerI.y - hexHeight / 4 );
+    //   }
+    //
+    //
+    //   offscreenContext.closePath()
+    //
+    //
+    // }
 
 
     function featureInDirection( x, y, direction, feature ) {
@@ -6927,6 +6931,8 @@ function drawAngleLines( centerX, centerY ) {
 
       focusX = Math.max(zoomX, Math.min(focusX, offscreenCanvas.width - zoomX));
       focusY = Math.max(zoomY, Math.min(focusY, offscreenCanvas.height - zoomY));
+
+
 
       zoomY = zoomLevel;
       zoomX = zoomLevel * ( displayCanvas.width / displayCanvas.height );
