@@ -10,6 +10,7 @@ css/                  main.css (layout), helpWindow.css, mapInfo.css, niftyButto
 art/                  Images used for map features and UI
 js/
   shared/hexGrid.js   Hex-grid math shared with the game: neighbors, distance, lines, rings, megahexes
+  shared/mapText.js   Reads map text into a plain object (used by the game; the editor still uses io/mapText.js)
   core/state.js       Global constants and editor state (hex size, zoom/focus, undo)
   core/hexGeometry.js Grid math: hex centers, vertices, adjacency, hit testing
   render/             Drawing onto the offscreen canvas
@@ -42,7 +43,12 @@ HexGrid.distance('0,0', '3,4')      // steps between hexes
 HexGrid.line('0,0', '5,2')          // hexes a straight line passes through (line of sight)
 HexGrid.range('3,4', 2)             // everything within 2 hexes
 HexGrid.megahexCenter('3,4', map.megahexOrigin)
+HexGrid.megahexDistance('0,6', '14,1', map.megahexOrigin)   // missile range
 ```
+
+`js/shared/mapText.js` defines `MapText.parse(text)`, which reads the map text format into
+`{ name, width, height, palette, megahexOrigin, bridges, hexes: { "x,y": { terrain, features } } }`.
+It follows the same grammar as `io/mapText.js`; switching the editor over to it is a later step.
 
 The master copy of everything in `js/shared/` (and its tests in `tests/shared/`) lives here. The game
 (TFT_Trainer, cloned beside this repo as `../game`) gets a mirror: after changing shared code, run

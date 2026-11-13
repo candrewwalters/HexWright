@@ -133,10 +133,20 @@ const HexGrid = ( () => {
   // The 7 hexes of the megahex centered on `center`: the center first, then N, NE, SE, S, SW, NW.
   const megahexMembers = center => [ hex( center ), ...neighbors( center ) ];
 
+  // Distance in megahexes between the megahexes containing a and b (0 = same megahex). Used for
+  // missile range. The megahex lattice is itself a hex grid whose six steps are ±A, ±B and ±(B−A).
+  function megahexDistance( a, b, origin ) {
+    const ca = toCube( megahexCenter( a, origin ) ), cb = toCube( megahexCenter( b, origin ) );
+    const dq = cb[0] - ca[0], dr = cb[1] - ca[1];
+    const det = MEGA_A[0] * MEGA_B[1] - MEGA_A[1] * MEGA_B[0];
+    const i = Math.round( ( dq * MEGA_B[1] - dr * MEGA_B[0] ) / det ), j = Math.round( ( MEGA_A[0] * dr - MEGA_A[1] * dq ) / det );
+    return Math.max( Math.abs( i ), Math.abs( j ), Math.abs( i + j ) );
+  }
+
   return {
     VERSION: 1, DIRECTION_NAMES,
     hex, id, neighbor, neighbors, distance, areAdjacent, directionBetween,
-    range, ring, line, inBounds, megahexCenter, megahexMembers,
+    range, ring, line, inBounds, megahexCenter, megahexMembers, megahexDistance,
     toCube, fromCube   // exposed for tests and special cases
   };
 } )();
